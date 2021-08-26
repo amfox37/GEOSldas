@@ -1805,8 +1805,10 @@ contains
          rc=status                                                              &
          )
     _VERIFY(status)   
-   
-    call get_enkf_increments(                                              &
+  
+    call MAPL%t_profiler%start('enkf_increment',__RC__)
+ 
+    call get_enkf_increments(gc,                                           &
          date_time_new,                                                    &
          NUM_ENSEMBLE, N_catl, N_catf, N_obsl_max,                         &
          trim(out_path), trim(exp_id), exp_domain,                         &
@@ -1827,11 +1829,14 @@ contains
          ! below  are dummy for now
          N_adapt_R, obs_pert_adapt_param, Pert_adapt_R)
     
+    call MAPL%t_profiler%stop('enkf_increment',__RC__)
     
     if (fresh_incr) then
        ! apply EnKF increments (incl. call to catch_calc_soil_moist but not to recompute_diagS())
+       call MAPL%t_profiler%start('apply_enkf_increment',__RC__)
        call apply_enkf_increments( N_catl, NUM_ENSEMBLE, update_type, cat_param, &
             cat_progn_incr, cat_progn )
+       call MAPL%t_profiler%stop('apply_enkf_increment',__RC__)
        
     end if ! fresh_incr
     

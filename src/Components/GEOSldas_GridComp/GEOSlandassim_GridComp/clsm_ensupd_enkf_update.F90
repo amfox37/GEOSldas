@@ -1,4 +1,4 @@
-
+#include "MAPL_Generic.h"
 !***********************************************************************
 !
 !  land EnKF update for off-line CLSM ensemble driver
@@ -14,6 +14,8 @@ module clsm_ensupd_enkf_update
 
   use MAPL_ConstantsMod,                ONLY:     &
        MAPL_TICE
+  use MAPL
+  use ESMF
 
   USE CATCH_CONSTANTS,                  ONLY :    &
        N_gt           => CATCH_N_GT
@@ -138,7 +140,7 @@ module clsm_ensupd_enkf_update
 
 contains
 
-  subroutine get_enkf_increments(                                        &
+  subroutine get_enkf_increments(gc,                                     &
        date_time,                                                        &
        N_ens, N_catl, N_catf, N_obsl_max,                                &
        work_path, exp_id, exp_domain,                                    &
@@ -157,7 +159,7 @@ contains
        cat_progn_incr, fresh_incr,                                       &
        N_obsf, N_obsl, Observations_l,                                   &
        N_adapt_R, obs_pert_adapt_param, Pert_adapt_R,                    &
-       Obs_pert )
+       Obs_pert, rc)
 
     ! -------------------------------------------------------------
 
@@ -169,7 +171,7 @@ contains
     ! ----------------------------------------------------------------
     !
     ! inputs (via argument list, command line, or namelist file, TBD)
-
+    type(ESMF_GridComp),intent(inout) :: GC     !Gridded component
     type(date_time_type), intent(in) :: date_time    ! current date, time
 
     integer, intent(in) :: N_ens          ! number of ensemble members
@@ -249,6 +251,7 @@ contains
 
     real, dimension(N_obsl_max,N_ens), intent(out), optional :: Obs_pert
 
+    integer, optional, intent(out) :: rc
     ! ----------------------------------------------
 
     ! local variables
@@ -331,6 +334,8 @@ contains
 
     character(len=*), parameter :: Iam = 'get_enkf_increments'
     character(len=400) :: err_msg
+    type(MAPL_MetaComp),     pointer  :: MAPL
+    integer :: status
 
     ! **********************************************************************
     !
@@ -347,6 +352,8 @@ contains
     ! *************************************************************************
 
     ! initialize
+    call MAPL_GetObjectFromGC ( GC, MAPL, RC=STATUS )
+   ! _VERIFY(STATUS)
 
     fresh_incr = .false.
 
@@ -424,6 +431,7 @@ contains
             N_obs_param, obs_param, Observations_l, cat_param, cat_progn  )
 
        ! check for observations, found_obs_f=.true. if obs availalbe
+       call MAPL%t_profiler%start('collect_obs',__RC__)
 
        call collect_obs(                                              &
             work_path, exp_id, date_time, dtstep_assim,               &
@@ -434,6 +442,7 @@ contains
             N_obs_param, obs_param, N_obsl_max, out_obslog,           &
             N_obsl, Observations_l, found_obs_f )
 
+       call MAPL%t_profiler%stop('collect_obs',__RC__)
 
        ! --------------------------------------------------------------------
 
@@ -506,6 +515,7 @@ contains
 
           ! incl. obs bias estimation
 
+          call MAPL%t_profiler%start('get_obs_pred',__RC__)
           call get_obs_pred(                                      &
                .true.,                                            & ! -> before EnKF update
                N_obs_param, N_ens,                                &
@@ -516,6 +526,7 @@ contains
                met_force, lai, cat_param, cat_progn, mwRTM_param, &
                N_obsl, Observations_l, Obs_pred_l, obsbias_ok,    &
                fcsterr_inflation_fac )
+          call MAPL%t_profiler%stop('get_obs_pred',__RC__)
 
           if (allocated(obsbias_ok)) deallocate(obsbias_ok)
 
@@ -578,6 +589,8 @@ contains
        ! ******************************************************************
 
        if ( (N_obsf>0) .and. assimflag ) then
+       
+         call MAPL%t_profiler%start('state_update',__RC__)
 
 #ifdef LDAS_MPI
 
@@ -1168,7 +1181,7 @@ contains
           if (associated(Obs_pred_lH))        deallocate(Obs_pred_lH)
 
 #endif
-
+          call MAPL%t_profiler%stop('state_update',__RC__)
        end if   ! (N_obsf>0) .and. assimflag
 
        ! --------------------------------------------------------------
