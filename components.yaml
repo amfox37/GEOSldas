@@ -11,7 +11,7 @@ env:
 cmake:
   local: ./@cmake
   remote: ../ESMA_cmake.git
-  tag: v3.24.0
+  tag: feature/sdrabenh/merge_v10.25.1_MSTRF
   develop: develop
 
 ecbuild:
@@ -22,14 +22,14 @@ ecbuild:
 GMAO_Shared:
   local: ./src/Shared/@GMAO_Shared
   remote: ../GMAO_Shared.git
-  tag: v1.7.0
+  tag: feature/sdrabenh/merge_v10.25.1_MSTRF
   sparse: ./config/GMAO_Shared.sparse
   develop: main
 
 GEOS_Util:
   local: ./src/Shared/@GMAO_Shared/@GEOS_Util
   remote: ../GEOS_Util.git
-  tag: v1.0.1
+  tag: feature/sdrabenh/merge_v10.25.1_MSTRF
   develop: main
 
 MAPL:
@@ -41,6 +41,6 @@ MAPL:
 GEOSgcm_GridComp:
   local: ./src/Components/GEOSldas_GridComp/@GEOSgcm_GridComp
   remote: ../GEOSgcm_GridComp.git
-  branch: develop
+  branch: feature/sdrabenh/merge_v10.25.1_MSTRF
   sparse: ./config/GEOSgcm_GridComp_ldas.sparse
   develop: develop
