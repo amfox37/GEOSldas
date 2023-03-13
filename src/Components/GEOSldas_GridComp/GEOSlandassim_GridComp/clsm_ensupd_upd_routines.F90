@@ -1344,7 +1344,9 @@ contains
           
           call catch2mwRTM_vars( N_catl, cat_param%vegcls, cat_param%poros,    &
                mwRTM_param%poros, sfmc_l(:,n_e), tsurf_l(:,n_e), tp_l(1,:),    &
-               smoist, stemp_l(:,n_e) )
+               smoist, stemp_l(:,n_e), &
+               sfmc_cat2rtm_scale=mwRTM_param%sm_scale,&
+               sfmc_cat2rtm_offset=mwRTM_param%sm_offset )
           
           ! calculate brightness temperatures
           

@@ -992,6 +992,24 @@ contains
       DEFAULT     = nodata_generic              ,&
       RC=STATUS)
 
+   call MAPL_AddInternalSpec(GC                 ,&
+      LONG_NAME   = 'L-band Microwave RTM: Parameter to scale CATCHMENT sm '   ,&
+      UNITS       = '1'                    ,&
+      SHORT_NAME  = 'SM_scale'                ,&
+      DIMS        = MAPL_DimsTileOnly           ,&
+      VLOCATION   = MAPL_VLocationNone          ,&
+      DEFAULT     = nodata_generic              ,&
+      RC=STATUS)
+
+   call MAPL_AddInternalSpec(GC                 ,&
+      LONG_NAME   = 'L-band Microwave RTM: Parameter to offset CATCHMENT sm'   ,&
+      UNITS       = 'm3 m-3'                    ,&
+      SHORT_NAME  = 'SM_offset'                ,&
+      DIMS        = MAPL_DimsTileOnly           ,&
+      VLOCATION   = MAPL_VLocationNone          ,&
+      DEFAULT     = nodata_generic              ,&
+      RC=STATUS)
+
    
    if ( land_assim ) then
 
@@ -1804,6 +1822,8 @@ contains
        call MAPL_VarWrite(unit, tilegrid,mwRTM_param(:)%bh,        mask=mask, rc=status); _VERIFY(STATUS)
        call MAPL_VarWrite(unit, tilegrid,mwRTM_param(:)%bv,        mask=mask, rc=status); _VERIFY(STATUS)
        call MAPL_VarWrite(unit, tilegrid,mwRTM_param(:)%lewt,      mask=mask, rc=status); _VERIFY(STATUS)
+       call MAPL_VarWrite(unit, tilegrid,mwRTM_param(:)%sm_scale,  mask=mask, rc=status); _VERIFY(STATUS)
+       call MAPL_VarWrite(unit, tilegrid,mwRTM_param(:)%sm_offset, mask=mask, rc=status); _VERIFY(STATUS)
        call MAPL_VarWrite(unit, tilegrid,mwRTM_param(:)%vegopacity,mask=mask, rc=status); _VERIFY(STATUS)   ! NOT constant in time!!!
        
        !unit = GETFILE( "landassim_catparam_inputs.bin", form="unformatted", RC=STATUS )
@@ -2183,6 +2203,8 @@ contains
     real, dimension(:), pointer :: BH
     real, dimension(:), pointer :: BV
     real, dimension(:), pointer :: LEWT
+    real, dimension(:), pointer :: SM_SCALE 
+    real, dimension(:), pointer :: SM_OFFSET 
 
     ! export
     real, dimension(:), pointer :: TB_H_enavg
@@ -2269,6 +2291,8 @@ contains
          TP1,               &    ! units Kelvin !!!
          sfmc_mwRTM,        & 
          tsoil_mwRTM,       &    ! units Kelvin !!!
+         sfmc_cat2rtm_scale=mwRTM_param%sm_scale, &
+         sfmc_cat2rtm_offset=mwRTM_param%sm_offset, &
          tp1_in_Kelvin=.true. )
     
     ! calculate brightness temperatures
@@ -2650,6 +2674,8 @@ contains
     real, dimension(:), pointer :: BH
     real, dimension(:), pointer :: BV
     real, dimension(:), pointer :: LEWT
+    real, dimension(:), pointer :: SM_SCALE 
+    real, dimension(:), pointer :: SM_OFFSET 
     
     integer :: N_catl_tmp, n, mpierr, status
     logical :: mwp_nodata, all_nodata_l
@@ -2694,6 +2720,10 @@ contains
        call MAPL_GetPointer(INTERNAL, BV       , 'MWRTM_BV'       ,    RC=STATUS)
        _VERIFY(STATUS)
        call MAPL_GetPointer(INTERNAL, LEWT     , 'MWRTM_LEWT'     ,    RC=STATUS)
+       _VERIFY(STATUS)
+       call MAPL_GetPointer(INTERNAL, SM_SCALE , 'SM_scale' ,    RC=STATUS)
+       _VERIFY(STATUS)
+       call MAPL_GetPointer(INTERNAL, SM_OFFSET, 'SM_offset',    RC=STATUS)
        _VERIFY(STATUS) 
        
        N_catl_tmp = size(sand,1)
@@ -2718,6 +2748,8 @@ contains
        mwRTM_param(:)%bh        = BH(:)
        mwRTM_param(:)%bv        = bv(:)
        mwRTM_param(:)%lewt      = LEWT(:)
+       mwRTM_param(:)%sm_scale  = SM_SCALE(:)
+       mwRTM_param(:)%sm_offset = SM_OFFSET(:)
        
     endif   ! if (.not. allocated(mwRTM_param))
     

@@ -76,6 +76,11 @@ module mwRTM_types
      real    :: bv          ! veg b parameter (v-pol)  (tau = b*VWC)        [dim-less]
      real    :: lewt        ! VWC = lewt*LAI                                [kg/m2]
      real    :: vegopacity  ! veg opacity = tau/cos(inc_angle)              [dim-less]
+
+     ! parameters relating to input effective soil mositure  and  temperature 
+
+     real    :: sm_scale     ! catch2mwRTM sm scale factor                  [dim-less]
+     real    :: sm_offset    ! catch2mwRTM sm offset                         [m3/m3]
      
   end type mwRTM_param_type
   
@@ -280,6 +285,8 @@ contains
     mwRTM_param%bh          = scalar
     mwRTM_param%bv          = scalar
     mwRTM_param%lewt        = scalar
+    mwRTM_param%sm_scale    = scalar
+    mwRTM_param%sm_offset   = scalar
     mwRTM_param%vegopacity  = scalar
     
   end subroutine scalar2mwRTM_param
@@ -394,7 +401,9 @@ contains
          LDAS_is_nodata( mwp%rgh_Nrh    ) .or.        &
          LDAS_is_nodata( mwp%rgh_Nrv    ) .or.        &
          LDAS_is_nodata( mwp%rgh_polmix ) .or.        &
-         LDAS_is_nodata( mwp%omega      )             &
+         LDAS_is_nodata( mwp%omega      ) .or.        &
+         LDAS_is_nodata( mwp%sm_scale   ) .or.        &
+         LDAS_is_nodata( mwp%sm_offset  )             &
          )                               
 
     if ( other_params_nodata ) then
