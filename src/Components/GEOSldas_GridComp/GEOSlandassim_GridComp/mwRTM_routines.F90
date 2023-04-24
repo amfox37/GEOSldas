@@ -236,8 +236,8 @@ contains
     if (present(sfmc_cat2rtm_scale)) &
         sfmc_mwRTM = sfmc_mwRTM * sfmc_cat2rtm_scale + sfmc_cat2rtm_offset
 
-    where (sfmc_mwRTM < 1.e-3) sfmc_mwRTM = 1.e-3
-    where (sfmc_mwRTM >= 0.99) sfmc_mwRTM = 0.99
+    where (sfmc_mwRTM < 1.e-2) sfmc_mwRTM = 1.e-2
+    where (sfmc_mwRTM >= poros_mwRTM) sfmc_mwRTM = poros_mwRTM
  
     ! diagnose soil temperature to be used with mwRTM
     ! (change prompted by revision of Catchment model parameter CSOIL_2)
