@@ -1710,6 +1710,15 @@ contains
     do kk = 1,N_files
       tmpfname = fnames(kk)
       write (logunit,*) 'tmpfname: ', tmpfname
+      ! Are we in the required assimilation window?
+      !e.g. Y2019/M07/D02/M01-ASCA-ASCSMO02-NA-5.0-20190702075700.000000000Z-20190702084627-1350204.bfr
+      str_date_time = tmpfname(40:53)
+      write (logunit,*) 'str_date_time: ', str_date_time
+      date_time_tmp = SMAPdatetime_to_DateTimeType(str_date_time)
+
+      if ( datetime_lt_refdatetime( date_time_low, date_time_tmp ) .and.        &
+            datetime_le_refdatetime( date_time_tmp, date_time_upp )) then 
+
       ! Remove the '/D03/' from the directory part as using "read_obs_SMAP_fnames" 
       ind = index(tmpfname, "/D")
       write (logunit,*) 'ind: ', ind
@@ -1720,6 +1729,8 @@ contains
          write (logunit,*) 'tmpfname2: ', tmpfname2
       end if
       fnames(kk) = trim(this_obs_param%path) // '/' // trim(tmpfname2)
+      end if 
+
    end do
 
    write (logunit,*) 'File names from list (2): ', fnames
