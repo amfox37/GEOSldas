@@ -1622,7 +1622,8 @@ contains
     character(  4) :: DDHH
     character(  6) :: YYYYMM
     character(  8) :: date_string
-    character( 10) :: time_string
+    character( 10) :: time_stringi
+    character( 15) :: str_date_time
     character( 80) :: fname_of_fname_list
     character(300) :: tmpfname, tmpfname2
     character(400) :: cmd
@@ -1722,6 +1723,7 @@ contains
       ! Remove the '/D03/' from the directory part as using "read_obs_SMAP_fnames" 
       ind = index(tmpfname, "/D")
       write (logunit,*) 'ind: ', ind
+      
       if (ind > 0) then
          write (logunit,*) 'tmpfname(1:ind): ', tmpfname(1:ind)
          write (logunit,*) 'tmpfname(ind+5:): ', tmpfname(ind+5:)
@@ -1729,9 +1731,8 @@ contains
          write (logunit,*) 'tmpfname2: ', tmpfname2
       end if
       fnames(kk) = trim(this_obs_param%path) // '/' // trim(tmpfname2)
-      end if 
-
-   end do
+      end if
+     end do
 
    write (logunit,*) 'File names from list (2): ', fnames
 
